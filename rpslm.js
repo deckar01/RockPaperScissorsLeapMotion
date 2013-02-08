@@ -1,12 +1,9 @@
 var RPSLM = function(){
 	
-	this.listener = new Leap.Listener();
-	
 	var me = this;
-	this.listener.onFrame = function(controller){ me._onFrame(controller); };
 	
 	this.controller = new Leap.Controller("ws://localhost:6437/");
-	this.controller.addListener(this.listener);
+	this.animLoop = new Leap.AnimLoop(this.controller, function(controller){ me._onAnim(controller); });
 	
 	this.elem = document.createElement("div");
 	document.body.appendChild(this.elem);
@@ -14,11 +11,13 @@ var RPSLM = function(){
 
 RPSLM.prototype = {
 	
-	_onFrame : function(controller) {
+	_onAnim : function(controller) {
 		
 		this.elem.innerHTML = "";
 		
 		var hands = controller.frame().hands();
+		hands.sort(function(a,b){ return a.palmPosition().x - b.palmPosition().x; });
+		
 		for(var i=0; i < hands.count(); i++){
 		
 			var fingers = hands[i].fingers().count();
